@@ -1,0 +1,12 @@
+[build]
+target = "./index.html"
+
+[watch]
+ignore = ["./src-tauri"]
+
+[tools]
+tailwindcss="4.1.10"
+
+[serve]
+port = 1420
+open = false
