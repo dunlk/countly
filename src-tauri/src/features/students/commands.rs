@@ -50,3 +50,16 @@ pub async fn get_students(pool: State<'_, SqlitePool>) -> Result<Vec<Student>, S
 
     Ok(students)
 }
+
+// #[tauri::command]
+// pub async fn update_student(pool: State<'_, SqlitePool>, id: u32) -> Result<u32, String> {
+//     let student = sqlx::query(
+//         "DELETE
+//         FROM students
+//         WHERE id=?",
+//     )
+//     .bind(&id)
+//     .execute(pool.inner())
+//     .await
+//
+// }
