@@ -2,7 +2,7 @@ mod database;
 mod features;
 
 use database::connection::create_pool;
-use features::students::commands::{create_student, get_students};
+use features::students::commands::{create_student, delete_student, get_students, update_student};
 use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -27,7 +27,12 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![create_student, get_students]) // habilitados
+        .invoke_handler(tauri::generate_handler![
+            create_student,
+            get_students,
+            delete_student,
+            update_student
+        ]) // habilitados
         // los comando
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

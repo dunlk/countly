@@ -1,8 +1,6 @@
 use sqlx::SqlitePool;
 use tauri::State;
 
-use crate::features::students;
-
 use super::model::Student;
 
 #[tauri::command]
@@ -51,15 +49,44 @@ pub async fn get_students(pool: State<'_, SqlitePool>) -> Result<Vec<Student>, S
     Ok(students)
 }
 
-// #[tauri::command]
-// pub async fn update_student(pool: State<'_, SqlitePool>, id: u32) -> Result<u32, String> {
-//     let student = sqlx::query(
-//         "DELETE
-//         FROM students
-//         WHERE id=?",
-//     )
-//     .bind(&id)
-//     .execute(pool.inner())
-//     .await
-//
-// }
+#[tauri::command]
+pub async fn update_student(
+    pool: State<'_, SqlitePool>,
+    id: i64,
+    first_name: String,
+    last_name: String,
+) -> Result<Student, String> {
+    sqlx::query(
+        "UPDATE students
+        SET first_name = ?, last_name = ?
+        WHERE id = ?",
+    )
+    .bind(&first_name)
+    .bind(&last_name)
+    .bind(id)
+    .execute(pool.inner())
+    .await
+    .map_err(|error| error.to_string())?;
+
+    let student = Student {
+        id,
+        first_name,
+        last_name,
+    };
+
+    Ok(student)
+}
+
+#[tauri::command]
+pub async fn delete_student(pool: State<'_, SqlitePool>, id: i32) -> Result<(), String> {
+    sqlx::query(
+        "DELETE FROM students
+        WHERE id = ?",
+    )
+    .bind(id)
+    .execute(pool.inner())
+    .await
+    .map_err(|error| error.to_string())?;
+
+    Ok(())
+}
