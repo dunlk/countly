@@ -2,6 +2,7 @@ use leptos::prelude::*;
 use serde::Serialize;
 use wasm_bindgen_futures::{spawn_local, JsFuture};
 
+use crate::features::students::components::student_form::StudentForm;
 use crate::features::students::components::student_list::StudentList;
 use crate::features::students::model::Student;
 use crate::tauri::commands::invoke;
@@ -61,7 +62,7 @@ pub fn StudentPage() -> impl IntoView {
         });
     });
 
-    let save_student = move |_| {
+    let save_student = move || {
         let first_name = first_name.get();
         let last_name = last_name.get();
         let editing_id = editing_id.get();
@@ -171,6 +172,16 @@ pub fn StudentPage() -> impl IntoView {
         });
     };
 
+    let on_save = Callback::new(move |_| {
+        save_student();
+    });
+
+    let on_cancel = Callback::new(move |_| {
+        set_editing_id.set(None);
+        set_first_name.set(String::new());
+        set_last_name.set(String::new());
+    });
+
     let on_delete = Callback::new(move |student_id: i64| {
         spawn_local(async move {
             let args = DeleteStudentArgs { id: student_id };
@@ -208,64 +219,19 @@ pub fn StudentPage() -> impl IntoView {
     });
 
     view! {
-        <main class="min-h-screen pt-[50px] bg-slate-800 text-white p-8">
-            <div class="mx-auto max-w-xl">
-                <h1 class="mb-8 text-3xl font-bold">
-                    "Alumnos"
-                </h1>
-
-                <div class="space-y-5 rounded-xl bg-slate-900 p-6">
-                    <div>
-                        <label class="mb-2 block text-sm">"Nombre"</label>
-
-                        <input
-                            type="text"
-                            prop:value=move || first_name.get()
-                            class="w-full rounded-lg bg-slate-800 px-4 py-3 outline-none"
-                            on:input=move |ev| {
-                                set_first_name.set(event_target_value(&ev));
-                            }
-                        />
-                    </div>
-
-                    <div>
-                        <label class="mb-2 block text-sm">
-                            "Apellido"
-                        </label>
-
-                        <input
-                            type="text"
-                            prop:value=move|| last_name.get()
-                            class="w-full rounded-lg bg-slate-800 px-4 py-3 outline-none"
-                            on:input=move |ev| {
-                                set_last_name.set(event_target_value(&ev));
-                            }
-                        />
-                    </div>
-
-                    <button
-                        class="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold"
-                        on:click=save_student
-                    >
-                        {move || {
-                                    if editing_id.get().is_some() {
-                                        "Guardar cambios"
-
-                                    } else {
-                                        "Guardar alumno"
-                                    }
-
-                        }}
-                    </button>
-                </div>
-
-            </div>
+        <main class="p-8 min-h-screen text-white pt-[50px] bg-slate-800">
+            // formulario estudiante
+            <StudentForm
+                    first_name=first_name
+                    set_first_name=set_first_name
+                    last_name=last_name
+                    set_last_name=set_last_name
+                    editing_id=editing_id
+                    on_save=on_save
+                    on_cancel=on_cancel
+                />
             // Mostrar alumnos
-            <StudentList
-                students=students
-                on_edit=on_edit
-                on_delete=on_delete
-            />
+            <StudentList students={students} on_edit={on_edit} on_delete={on_delete} />
         </main>
     }
 }
